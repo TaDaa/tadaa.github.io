@@ -1,0 +1,27 @@
+{
+  "name": "tadaa.github.io",
+  "version": "0.0.1",
+  "description": "demo site",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "git" : "git add -A && git commit -m \"update demos\" && git push"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TaDaa/tadaa.github.io.git"
+  },
+  "author": "= <trevor002@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TaDaa/tadaa.github.io/issues"
+  },
+  "homepage": "https://github.com/TaDaa/tadaa.github.io#readme",
+  "devDependencies": {
+    "c2": "^0.1.8",
+    "d3": "^4.2.3",
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1",
+    "webpack": "^1.13.2"
+  }
+}
