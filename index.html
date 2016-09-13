@@ -1,6 +1,15 @@
 <html>
   <head>
-    <script type="text/javascript" src="https://raw.githubusercontent.com/TaDaa/c2/master/dist/c2.js"></script>
+    <script>
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (this.readyState === 4) {
+          (0,eval)(this.responseText);
+        }
+      };
+      xhr.open('get','raw.github.com/TaDaa/c2/master/dist/c2.js');
+      xhr.send();
+    </script>
   </head>
   <body>
     test
