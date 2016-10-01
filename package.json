@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "git" : "git add -A && git commit -m \"update demos\" && git push"
+    "git": "git add -A && git commit -m \"update demos\" && git push"
   },
   "repository": {
     "type": "git",
@@ -18,7 +18,10 @@
   },
   "homepage": "https://github.com/TaDaa/tadaa.github.io#readme",
   "devDependencies": {
-    "c2": "^0.1.8",
+    "babel-core": "^6.14.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-react": "^6.11.1",
+    "c2": "^0.1.14",
     "d3": "^4.2.3",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
