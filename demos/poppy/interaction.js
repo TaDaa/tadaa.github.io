@@ -33,7 +33,7 @@ View = React.createClass({
             <Poppy constrainTo="body"  toggleOnClick arrowSize={this.state.arrowSize} content={this.state.text}>
                 <button style={{margin:20,padding:10,height:50}} >HOVER WITH TOGGLE</button>
             </Poppy>
-            <Poppy constrainTo="body" persistOverContent toggleOnClick arrowSize={this.state.arrowSize} content={this.state.text}>
+            <Poppy constrainTo="body" persistOverContent  arrowSize={this.state.arrowSize} content={this.state.text}>
                 <button style={{margin:20,padding:10,height:50}}>MOUSEOVER POPOVER AND STAY VISIBLE</button>
             </Poppy>
             <Poppy constrainTo="body"  title={<div style={{whiteSpace:'nowrap'}}>CLICK THE BUTTON!!</div>} arrowSize={this.state.arrowSize} content={this.state.growContent1 && this.state.text}>
