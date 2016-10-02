@@ -1,7 +1,8 @@
 //TODO loosen version requirements for react
 var React = window.React =  require('react'),
 ReactDOM = window.ReactDOM=  require('react-dom'),
-Poppy = require('react-poppy');
+Poppy = require('../../../react-poppy/libs/poppy.js');
+//Poppy = require('react-poppy');
 
 
 View = React.createClass({
@@ -14,7 +15,7 @@ View = React.createClass({
         var 
         num_tests=1,i,ln,
         max_perc = 300,
-        tick_perc = 15,
+        tick_perc = 20,
         tests = [],
         content,
         popovers = [];

@@ -48,58 +48,108 @@
 	var React = window.React = __webpack_require__(1),
 	    ReactDOM = window.ReactDOM = __webpack_require__(34),
 	    Poppy = __webpack_require__(172);
-	//Poppy = require('react-poppy');
-
 
 	View = React.createClass({
 	    displayName: 'View',
 
 	    'getInitialState': function () {
 	        return {
-	            'arrowSize': 20
+	            'text': React.createElement(
+	                'div',
+	                { style: { width: 300 } },
+	                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+	            )
 	        };
 	    },
+	    'componentDidMount': function () {},
+	    '_toggleGrow1': function () {
+	        this.setState({
+	            'growContent1': !this.state.growContent1
+	        });
+	    },
+	    '_toggleGrow2': function () {
+	        this.setState({
+	            'growContent2': !this.state.growContent2
+	        });
+	    },
 	    'render': function () {
-	        var num_tests = 1,
-	            i,
-	            ln,
-	            max_perc = 300,
-	            tick_perc = 20,
-	            tests = [],
-	            content,
-	            popovers = [];
-	        for (i = 0, ln = num_tests; i < ln; i++) {
-	            tests.push(React.createElement(
-	                'div',
-	                { style: { width: 300, padding: 10 } },
-	                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-	            ));
-	        }
-	        content = React.createElement(
-	            'div',
-	            null,
-	            tests
-	        );
-
-	        for (i = 0, ln = max_perc; i < ln; i += tick_perc) {
-	            popovers.push(React.createElement(
-	                Poppy,
-	                { constrainTo: 'body', show: true, bindScroll: true, arrowSize: this.state.arrowSize, content: content },
-	                React.createElement(
-	                    'div',
-	                    { style: { position: 'absolute', left: i + '%', top: i + '%', width: 100, height: 25 } },
-	                    'FOLLOW ME!!!!'
-	                )
-	            ));
-	        }
-
 	        return React.createElement(
 	            'div',
-	            { className: 'scroll-container', style: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'auto' } },
+	            { style: { position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: 0 } },
 	            React.createElement(
-	                'div',
-	                { style: { position: 'absolute', top: 0, left: 0, height: max_perc + '%', width: max_perc + '%' } },
-	                popovers
+	                Poppy,
+	                { constrainTo: 'body', showOnMouseEnter: true, hideOnMouseLeave: true, arrowSize: this.state.arrowSize, content: this.state.text },
+	                React.createElement(
+	                    'button',
+	                    { style: { margin: 20, padding: 10, height: 50 } },
+	                    'HOVER ME'
+	                )
+	            ),
+	            React.createElement(
+	                Poppy,
+	                { constrainTo: 'body', showOnMouseEnter: false, hideOnMouseLeave: false, toggleOnClick: true, arrowSize: this.state.arrowSize, content: this.state.text },
+	                React.createElement(
+	                    'button',
+	                    { style: { margin: 20, padding: 10, height: 50 } },
+	                    'CLICK TO TOGGLE'
+	                )
+	            ),
+	            React.createElement(
+	                Poppy,
+	                { constrainTo: 'body', toggleOnClick: true, arrowSize: this.state.arrowSize, content: this.state.text },
+	                React.createElement(
+	                    'button',
+	                    { style: { margin: 20, padding: 10, height: 50 } },
+	                    'HOVER WITH TOGGLE'
+	                )
+	            ),
+	            React.createElement(
+	                Poppy,
+	                { constrainTo: 'body', persistOverContent: true, toggleOnClick: true, arrowSize: this.state.arrowSize, content: this.state.text },
+	                React.createElement(
+	                    'button',
+	                    { style: { margin: 20, padding: 10, height: 50 } },
+	                    'MOUSEOVER POPOVER AND STAY VISIBLE'
+	                )
+	            ),
+	            React.createElement(
+	                Poppy,
+	                { constrainTo: 'body', title: React.createElement(
+	                        'div',
+	                        { style: { whiteSpace: 'nowrap' } },
+	                        'CLICK THE BUTTON!!'
+	                    ), arrowSize: this.state.arrowSize, content: this.state.growContent1 && this.state.text },
+	                React.createElement(
+	                    'button',
+	                    { onClick: this._toggleGrow1, style: { margin: 50, padding: 10, height: 50 } },
+	                    'TOGGLE TO GROW CONTENT'
+	                )
+	            ),
+	            React.createElement(
+	                Poppy,
+	                { constrainTo: 'body', toggleOnClick: true, title: React.createElement(
+	                        'div',
+	                        { style: { whiteSpace: 'nowrap' } },
+	                        'CLICK THE BUTTON!!'
+	                    ), arrowSize: this.state.arrowSize, content: this.state.growContent2 && this.state.text || '' },
+	                React.createElement(
+	                    'button',
+	                    { onClick: this._toggleGrow2, style: { margin: 50, padding: 10, height: 50 } },
+	                    'TOGGLE TO GROW CONTENT AND STAY OPEN'
+	                )
+	            ),
+	            React.createElement(
+	                Poppy,
+	                { constrainTo: 'body', persistOverContent: true, titleStyle: { background: 'rgba(0,0,0,0.5)' }, title: React.createElement(
+	                        'div',
+	                        { style: { whiteSpace: 'nowrap' } },
+	                        'Hover me and Scroll!'
+	                    ), arrowSize: this.state.arrowSize, content: [this.state.text, this.state.text, this.state.text, this.state.text, this.state.text, this.state.text, this.state.text, this.state.text, this.state.text, this.state.text] },
+	                React.createElement(
+	                    'button',
+	                    { onClick: this._toggleGrow2, style: { margin: 50, padding: 10, height: 50 } },
+	                    'CAN SCROLL CONTENT'
+	                )
 	            )
 	        );
 	    }
@@ -108,13 +158,6 @@
 	window.addEventListener('load', function () {
 	    ReactDOM.render(React.createElement(View, null), document.body.querySelector('.react-viewport'));
 	});
-
-	//<Popover bindScroll={true} arrowSize={this.state.arrowSize} region={this.state.region}  bindWindowResize={this.state.bindOnWindowResize} toggleOnClick={false}  show={true} showOnMouseEnter={true} hideOnMouseLeave={true} persistOverContent={false} constrainTo={'body'} title={"wtf2"} content={<div>{this.state.content}</div>}>
-	//<SelectField ref="select" style={{position:'absolute',width:50,width:5000,height:5000,left:this.state.x,top:this.state.y}}  label={this.state.content} disabled={this.state.disabled} placeholder={this.state.placeholder}></SelectField>
-	//</Popover>
-	//<Popover bindScroll={true} region='right' arrowSize={40} arrowSize={15}   bindWindowResize={this.state.bindOnWindowResize} toggleOnClick={false}  show={true} showOnMouseEnter={true} hideOnMouseLeave={true} persistOverContent={false} constrainTo={'body'} title={"wtf2"} content={<div>{this.state.content}</div>}>
-	//<SelectField ref="select"   style={{position:'absolute',width:50,left:(this.state.x|0)+2000,top:(this.state.y|0)+570}}  label={this.state.content} disabled={this.state.disabled} placeholder={this.state.placeholder}></SelectField>
-	//</Popover>
 
 /***/ },
 /* 1 */

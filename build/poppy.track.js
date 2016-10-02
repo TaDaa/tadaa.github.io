@@ -48,58 +48,110 @@
 	var React = window.React = __webpack_require__(1),
 	    ReactDOM = window.ReactDOM = __webpack_require__(34),
 	    Poppy = __webpack_require__(172);
-	//Poppy = require('react-poppy');
-
 
 	View = React.createClass({
 	    displayName: 'View',
 
 	    'getInitialState': function () {
-	        return {
-	            'arrowSize': 20
-	        };
+	        this._width = 0;
+	        this._height = 0;
+	        this._hDirection = 1;
+	        this._wDirection = 1;
+	        this._xDirection = 1;
+	        this._yDirection = 0;
+	        this._x = 0;
+	        this._y = 0;
+	        return {};
+	    },
+	    'componentDidMount': function () {
+	        requestAnimationFrame(this._doTick);
+	    },
+	    '_doTick': function () {
+	        var hDirection = this._hDirection | 0,
+	            wDirection = this._wDirection | 0,
+	            width = this._width,
+	            height = this._height,
+	            wHeight = window.innerHeight,
+	            wWidth = window.innerWidth,
+	            x = this._x,
+	            y = this._y,
+	            xDirection = this._xDirection,
+	            yDirection = this._yDirection;
+
+	        if (height < 0 || height > window.innerHeight) {
+	            hDirection *= -1;
+	        }
+	        if (width > 1000 || width < 0) {
+	            wDirection *= -1;
+	        }
+	        width += wDirection;
+	        height += hDirection;
+	        if (xDirection === 1 && x > wWidth - 50 - width) {
+	            if (y >= height - 1) {
+	                if (x > wWidth - 50) {
+	                    x = wWidth - 50;
+	                } else {
+	                    y = height - 1;
+	                }
+	            } else {
+	                x = wWidth - 50 - width;
+	            }
+	            xDirection = 1;
+	            yDirection = 1;
+	        }
+	        if (y > wHeight - 50) {
+	            y = wHeight - 50;
+	            yDirection = 0;
+	            xDirection = -1;
+	        }
+	        if (x < 0) {
+	            x = 0;
+	            xDirection = 0;
+	            yDirection = -1;
+	        }
+	        if (y < 0) {
+	            y = 0;
+	            yDirection = 0;
+	            xDirection = 1;
+	        }
+	        this._x = x + xDirection * 2;
+	        this._y = y + yDirection;
+	        this._width = width;
+	        this._height = height;
+	        this._xDirection = xDirection;
+	        this._yDirection = yDirection;
+	        this._hDirection = hDirection;
+	        this._wDirection = wDirection;
+
+	        this.refs.pos.style.top = this._y + 'px';
+	        this.refs.pos.style.left = this._x + 'px';
+	        this.refs.size.style.width = this._width + 'px';
+	        this.refs.size.style.height = this._height + 'px';
+	        //this.setState({
+	        //'height' : height,
+	        //'width' :  width,
+	        //'hDirection' : hDirection,
+	        //'wDirection' : wDirection,
+	        //'xDirection' : xDirection,
+	        //'yDirection' : yDirection,
+	        //'x' : x,
+	        //'y' : y
+	        //});
+	        requestAnimationFrame(this._doTick, 16);
 	    },
 	    'render': function () {
-	        var num_tests = 1,
-	            i,
-	            ln,
-	            max_perc = 300,
-	            tick_perc = 20,
-	            tests = [],
-	            content,
-	            popovers = [];
-	        for (i = 0, ln = num_tests; i < ln; i++) {
-	            tests.push(React.createElement(
-	                'div',
-	                { style: { width: 300, padding: 10 } },
-	                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-	            ));
-	        }
-	        content = React.createElement(
-	            'div',
-	            null,
-	            tests
-	        );
-
-	        for (i = 0, ln = max_perc; i < ln; i += tick_perc) {
-	            popovers.push(React.createElement(
-	                Poppy,
-	                { constrainTo: 'body', show: true, bindScroll: true, arrowSize: this.state.arrowSize, content: content },
-	                React.createElement(
-	                    'div',
-	                    { style: { position: 'absolute', left: i + '%', top: i + '%', width: 100, height: 25 } },
-	                    'FOLLOW ME!!!!'
-	                )
-	            ));
-	        }
-
 	        return React.createElement(
 	            'div',
-	            { className: 'scroll-container', style: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'auto' } },
+	            { style: { position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: 0 } },
 	            React.createElement(
-	                'div',
-	                { style: { position: 'absolute', top: 0, left: 0, height: max_perc + '%', width: max_perc + '%' } },
-	                popovers
+	                Poppy,
+	                { constrainTo: 'body', show: true, track: true, arrowSize: this.state.arrowSize, content: "TRACKING" },
+	                React.createElement('div', { ref: 'pos', style: { position: 'absolute', top: this.state.y, left: this.state.x, width: 50, height: 50, background: 'green' } })
+	            ),
+	            React.createElement(
+	                Poppy,
+	                { constrainTo: 'body', show: true, track: true, arrowSize: this.state.arrowSize, content: "TRACKING" },
+	                React.createElement('div', { ref: 'size', style: { position: 'absolute', top: 0, right: 0, width: this.state.width, height: this.state.height, background: 'blue' } })
 	            )
 	        );
 	    }

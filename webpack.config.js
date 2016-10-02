@@ -19,7 +19,10 @@ fs.readFile('./node_modules/react-poppy/dist/poppy.css',function (err,data) {
 
 
 config
-    ("poppy","scroll");
+    ("poppy","scroll")
+    ("poppy","track")
+    ("poppy","statePosition")
+    ("poppy","interaction")
 
 function config (package,demo) {
     module.exports.push({
