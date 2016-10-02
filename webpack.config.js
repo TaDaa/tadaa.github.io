@@ -1,18 +1,35 @@
-var dir = require('path').resolve(__dirname,'build');
+var dir = require('path').resolve(__dirname,'build'),
+fs = require('fs');
 module.exports = [];
 
-config
-    ("poppy");
 
-function config (name) {
+fs.readFile('./node_modules/react-poppy/dist/poppy.css',function (err,data) {
+    if (err) {
+        console.error(err.toString());
+    } else {
+        fs.writeFile('./build/poppy.css',data,function (err,done) {
+            if (err) {
+                console.error(err.toString());
+            } else {
+                console.error('done writing poppy.css');
+            }
+        });
+    }
+});
+
+
+config
+    ("poppy","scroll");
+
+function config (package,demo) {
     module.exports.push({
         'entry' : {
-            'app': './demos/'+name+'/index.js'
+            'app': './demos/'+package+'/'+demo+'.js'
         },
         'output' : {
             'path' : dir,
             'publicPath' : '/build/',
-            'filename' : name+ '.bundle.js'
+            'filename' : package+ '.'+demo+'.js'
         },
         'module' : {
             'loaders' : [{
@@ -27,3 +44,4 @@ function config (name) {
     });
     return config;
 }
+

@@ -44,8 +44,76 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	window.React = __webpack_require__(1);
-	window.ReactDOM = __webpack_require__(34);
+	//TODO loosen version requirements for react
+	var React = window.React = __webpack_require__(1),
+	    ReactDOM = window.ReactDOM = __webpack_require__(34),
+
+	//Poppy = require('react-poppy'),
+	Poppy = __webpack_require__(172),
+	    View = React.createClass({
+	    displayName: 'View',
+
+	    'getInitialState': function () {
+	        return {
+	            'arrowSize': 20
+	        };
+	    },
+	    'render': function () {
+	        var num_tests = 1,
+	            i,
+	            ln,
+	            max_perc = 300,
+	            tick_perc = 15,
+	            tests = [],
+	            content,
+	            popovers = [];
+	        for (i = 0, ln = num_tests; i < ln; i++) {
+	            tests.push(React.createElement(
+	                'div',
+	                { style: { width: 300, padding: 10 } },
+	                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+	            ));
+	        }
+	        content = React.createElement(
+	            'div',
+	            null,
+	            tests
+	        );
+
+	        for (i = 0, ln = max_perc; i < ln; i += tick_perc) {
+	            popovers.push(React.createElement(
+	                Poppy,
+	                { constrainTo: 'body', show: true, bindScroll: true, arrowSize: this.state.arrowSize, content: content },
+	                React.createElement(
+	                    'div',
+	                    { style: { position: 'absolute', left: i + '%', top: i + '%', width: 100, height: 25 } },
+	                    'FOLLOW ME!!!!'
+	                )
+	            ));
+	        }
+
+	        return React.createElement(
+	            'div',
+	            { className: 'scroll-container', style: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'auto' } },
+	            React.createElement(
+	                'div',
+	                { style: { position: 'absolute', top: 0, left: 0, height: max_perc + '%', width: max_perc + '%' } },
+	                popovers
+	            )
+	        );
+	    }
+	});
+
+	window.addEventListener('load', function () {
+	    ReactDOM.render(React.createElement(View, null), document.body.querySelector('.react-viewport'));
+	});
+
+	//<Popover bindScroll={true} arrowSize={this.state.arrowSize} region={this.state.region}  bindWindowResize={this.state.bindOnWindowResize} toggleOnClick={false}  show={true} showOnMouseEnter={true} hideOnMouseLeave={true} persistOverContent={false} constrainTo={'body'} title={"wtf2"} content={<div>{this.state.content}</div>}>
+	//<SelectField ref="select" style={{position:'absolute',width:50,width:5000,height:5000,left:this.state.x,top:this.state.y}}  label={this.state.content} disabled={this.state.disabled} placeholder={this.state.placeholder}></SelectField>
+	//</Popover>
+	//<Popover bindScroll={true} region='right' arrowSize={40} arrowSize={15}   bindWindowResize={this.state.bindOnWindowResize} toggleOnClick={false}  show={true} showOnMouseEnter={true} hideOnMouseLeave={true} persistOverContent={false} constrainTo={'body'} title={"wtf2"} content={<div>{this.state.content}</div>}>
+	//<SelectField ref="select"   style={{position:'absolute',width:50,left:(this.state.x|0)+2000,top:(this.state.y|0)+570}}  label={this.state.content} disabled={this.state.disabled} placeholder={this.state.placeholder}></SelectField>
+	//</Popover>
 
 /***/ },
 /* 1 */
@@ -1044,14 +1112,6 @@
 	  var source = null;
 
 	  if (config != null) {
-	    if (process.env.NODE_ENV !== 'production') {
-	      process.env.NODE_ENV !== 'production' ? warning(
-	      /* eslint-disable no-proto */
-	      config.__proto__ == null || config.__proto__ === Object.prototype,
-	      /* eslint-enable no-proto */
-	      'React.createElement(...): Expected props argument to be a plain object. ' + 'Properties defined in its prototype chain will be ignored.') : void 0;
-	    }
-
 	    if (hasValidRef(config)) {
 	      ref = config.ref;
 	    }
@@ -1152,14 +1212,6 @@
 	  var owner = element._owner;
 
 	  if (config != null) {
-	    if (process.env.NODE_ENV !== 'production') {
-	      process.env.NODE_ENV !== 'production' ? warning(
-	      /* eslint-disable no-proto */
-	      config.__proto__ == null || config.__proto__ === Object.prototype,
-	      /* eslint-enable no-proto */
-	      'React.cloneElement(...): Expected props argument to be a plain object. ' + 'Properties defined in its prototype chain will be ignored.') : void 0;
-	    }
-
 	    if (hasValidRef(config)) {
 	      // Silently steal the ref from the parent.
 	      ref = config.ref;
@@ -4193,7 +4245,7 @@
 
 	'use strict';
 
-	module.exports = '15.3.1';
+	module.exports = '15.3.2';
 
 /***/ },
 /* 33 */
@@ -5175,8 +5227,10 @@
 	function getFallbackBeforeInputChars(topLevelType, nativeEvent) {
 	  // If we are currently composing (IME) and using a fallback to do so,
 	  // try to extract the composed characters from the fallback object.
+	  // If composition event is available, we extract a string only at
+	  // compositionevent, otherwise extract it at fallback events.
 	  if (currentComposition) {
-	    if (topLevelType === topLevelTypes.topCompositionEnd || isFallbackCompositionEnd(topLevelType, nativeEvent)) {
+	    if (topLevelType === topLevelTypes.topCompositionEnd || !canUseCompositionEvent && isFallbackCompositionEnd(topLevelType, nativeEvent)) {
 	      var chars = currentComposition.getData();
 	      FallbackCompositionState.release(currentComposition);
 	      currentComposition = null;
@@ -6785,7 +6839,8 @@
 
 	    if (event.preventDefault) {
 	      event.preventDefault();
-	    } else {
+	    } else if (typeof event.returnValue !== 'unknown') {
+	      // eslint-disable-line valid-typeof
 	      event.returnValue = false;
 	    }
 	    this.isDefaultPrevented = emptyFunction.thatReturnsTrue;
@@ -7042,7 +7097,7 @@
 	var doesChangeEventBubble = false;
 	if (ExecutionEnvironment.canUseDOM) {
 	  // See `handleChange` comment below
-	  doesChangeEventBubble = isEventSupported('change') && (!('documentMode' in document) || document.documentMode > 8);
+	  doesChangeEventBubble = isEventSupported('change') && (!document.documentMode || document.documentMode > 8);
 	}
 
 	function manualDispatchChangeEvent(nativeEvent) {
@@ -7108,7 +7163,7 @@
 	  // deleting text, so we ignore its input events.
 	  // IE10+ fire input events to often, such when a placeholder
 	  // changes or when an input with a placeholder is focused.
-	  isInputEventSupported = isEventSupported('input') && (!('documentMode' in document) || document.documentMode > 11);
+	  isInputEventSupported = isEventSupported('input') && (!document.documentMode || document.documentMode > 11);
 	}
 
 	/**
@@ -8337,12 +8392,6 @@
 	    endLifeCycleTimer(debugID, timerType);
 	    emitEvent('onEndLifeCycleTimer', debugID, timerType);
 	  },
-	  onError: function (debugID) {
-	    if (currentTimerDebugID != null) {
-	      endLifeCycleTimer(currentTimerDebugID, currentTimerType);
-	    }
-	    emitEvent('onError', debugID);
-	  },
 	  onBeginProcessingChildContext: function () {
 	    emitEvent('onBeginProcessingChildContext');
 	  },
@@ -9416,6 +9465,8 @@
 	    allowFullScreen: HAS_BOOLEAN_VALUE,
 	    allowTransparency: 0,
 	    alt: 0,
+	    // specifies target context for links with `preload` type
+	    as: 0,
 	    async: HAS_BOOLEAN_VALUE,
 	    autoComplete: 0,
 	    // autoFocus is polyfilled/normalized by AutoFocusUtils
@@ -9496,6 +9547,7 @@
 	    optimum: 0,
 	    pattern: 0,
 	    placeholder: 0,
+	    playsInline: HAS_BOOLEAN_VALUE,
 	    poster: 0,
 	    preload: 0,
 	    profile: 0,
@@ -10018,9 +10070,9 @@
 	  if (node.namespaceURI === DOMNamespaces.svg && !('innerHTML' in node)) {
 	    reusableSVGContainer = reusableSVGContainer || document.createElement('div');
 	    reusableSVGContainer.innerHTML = '<svg>' + html + '</svg>';
-	    var newNodes = reusableSVGContainer.firstChild.childNodes;
-	    for (var i = 0; i < newNodes.length; i++) {
-	      node.appendChild(newNodes[i]);
+	    var svgNode = reusableSVGContainer.firstChild;
+	    while (svgNode.firstChild) {
+	      node.appendChild(svgNode.firstChild);
 	    }
 	  } else {
 	    node.innerHTML = html;
@@ -10948,9 +11000,9 @@
 	  ReactDOMOption.postMountWrapper(inst);
 	}
 
-	var setContentChildForInstrumentation = emptyFunction;
+	var setAndValidateContentChildDev = emptyFunction;
 	if (process.env.NODE_ENV !== 'production') {
-	  setContentChildForInstrumentation = function (content) {
+	  setAndValidateContentChildDev = function (content) {
 	    var hasExistingContent = this._contentDebugID != null;
 	    var debugID = this._debugID;
 	    // This ID represents the inlined child that has no backing instance:
@@ -10964,6 +11016,7 @@
 	      return;
 	    }
 
+	    validateDOMNesting(null, String(content), this, this._ancestorInfo);
 	    this._contentDebugID = contentDebugID;
 	    if (hasExistingContent) {
 	      ReactInstrumentation.debugTool.onBeforeUpdateComponent(contentDebugID, content);
@@ -11138,7 +11191,7 @@
 	  this._flags = 0;
 	  if (process.env.NODE_ENV !== 'production') {
 	    this._ancestorInfo = null;
-	    setContentChildForInstrumentation.call(this, null);
+	    setAndValidateContentChildDev.call(this, null);
 	  }
 	}
 
@@ -11238,7 +11291,7 @@
 	      if (parentInfo) {
 	        // parentInfo should always be present except for the top-level
 	        // component when server rendering
-	        validateDOMNesting(this._tag, this, parentInfo);
+	        validateDOMNesting(this._tag, null, this, parentInfo);
 	      }
 	      this._ancestorInfo = validateDOMNesting.updatedAncestorInfo(parentInfo, this._tag, this);
 	    }
@@ -11407,7 +11460,7 @@
 	        // TODO: Validate that text is allowed as a child of this node
 	        ret = escapeTextContentForBrowser(contentToUse);
 	        if (process.env.NODE_ENV !== 'production') {
-	          setContentChildForInstrumentation.call(this, contentToUse);
+	          setAndValidateContentChildDev.call(this, contentToUse);
 	        }
 	      } else if (childrenToUse != null) {
 	        var mountImages = this.mountChildren(childrenToUse, transaction, context);
@@ -11444,7 +11497,7 @@
 	      if (contentToUse != null) {
 	        // TODO: Validate that text is allowed as a child of this node
 	        if (process.env.NODE_ENV !== 'production') {
-	          setContentChildForInstrumentation.call(this, contentToUse);
+	          setAndValidateContentChildDev.call(this, contentToUse);
 	        }
 	        DOMLazyTree.queueText(lazyTree, contentToUse);
 	      } else if (childrenToUse != null) {
@@ -11676,7 +11729,7 @@
 	      if (lastContent !== nextContent) {
 	        this.updateTextContent('' + nextContent);
 	        if (process.env.NODE_ENV !== 'production') {
-	          setContentChildForInstrumentation.call(this, nextContent);
+	          setAndValidateContentChildDev.call(this, nextContent);
 	        }
 	      }
 	    } else if (nextHtml != null) {
@@ -11688,7 +11741,7 @@
 	      }
 	    } else if (nextChildren != null) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        setContentChildForInstrumentation.call(this, null);
+	        setAndValidateContentChildDev.call(this, null);
 	      }
 
 	      this.updateChildren(nextChildren, transaction, context);
@@ -11743,7 +11796,7 @@
 	    this._wrapperState = null;
 
 	    if (process.env.NODE_ENV !== 'production') {
-	      setContentChildForInstrumentation.call(this, null);
+	      setAndValidateContentChildDev.call(this, null);
 	    }
 	  },
 
@@ -13016,6 +13069,19 @@
 	  },
 
 	  /**
+	   * Protect against document.createEvent() returning null
+	   * Some popup blocker extensions appear to do this:
+	   * https://github.com/facebook/react/issues/6887
+	   */
+	  supportsEventPageXY: function () {
+	    if (!document.createEvent) {
+	      return false;
+	    }
+	    var ev = document.createEvent('MouseEvent');
+	    return ev != null && 'pageX' in ev;
+	  },
+
+	  /**
 	   * Listens to window scroll and resize events. We cache scroll values so that
 	   * application code can access them without triggering reflows.
 	   *
@@ -13028,7 +13094,7 @@
 	   */
 	  ensureScrollValueMonitoring: function () {
 	    if (hasEventPageXY === undefined) {
-	      hasEventPageXY = document.createEvent && 'pageX' in document.createEvent('MouseEvent');
+	      hasEventPageXY = ReactBrowserEventEmitter.supportsEventPageXY();
 	    }
 	    if (!hasEventPageXY && !isMonitoringScrollValue) {
 	      var refresh = ViewportMetrics.refreshScrollValues;
@@ -13314,7 +13380,7 @@
 
 	function isControlled(props) {
 	  var usesChecked = props.type === 'checkbox' || props.type === 'radio';
-	  return usesChecked ? props.checked !== undefined : props.value !== undefined;
+	  return usesChecked ? props.checked != null : props.value != null;
 	}
 
 	/**
@@ -15087,34 +15153,29 @@
 	  }
 	}
 
-	function invokeComponentDidMountWithTimer() {
-	  var publicInstance = this._instance;
-	  if (this._debugID !== 0) {
-	    ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentDidMount');
-	  }
-	  publicInstance.componentDidMount();
-	  if (this._debugID !== 0) {
-	    ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentDidMount');
-	  }
-	}
-
-	function invokeComponentDidUpdateWithTimer(prevProps, prevState, prevContext) {
-	  var publicInstance = this._instance;
-	  if (this._debugID !== 0) {
-	    ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentDidUpdate');
-	  }
-	  publicInstance.componentDidUpdate(prevProps, prevState, prevContext);
-	  if (this._debugID !== 0) {
-	    ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentDidUpdate');
-	  }
-	}
-
 	function shouldConstruct(Component) {
 	  return !!(Component.prototype && Component.prototype.isReactComponent);
 	}
 
 	function isPureComponent(Component) {
 	  return !!(Component.prototype && Component.prototype.isPureReactComponent);
+	}
+
+	// Separated into a function to contain deoptimizations caused by try/finally.
+	function measureLifeCyclePerf(fn, debugID, timerType) {
+	  if (debugID === 0) {
+	    // Top-level wrappers (see ReactMount) and empty components (see
+	    // ReactDOMEmptyComponent) are invisible to hooks and devtools.
+	    // Both are implementation details that should go away in the future.
+	    return fn();
+	  }
+
+	  ReactInstrumentation.debugTool.onBeginLifeCycleTimer(debugID, timerType);
+	  try {
+	    return fn();
+	  } finally {
+	    ReactInstrumentation.debugTool.onEndLifeCycleTimer(debugID, timerType);
+	  }
 	}
 
 	/**
@@ -15208,6 +15269,8 @@
 	   * @internal
 	   */
 	  mountComponent: function (transaction, hostParent, hostContainerInfo, context) {
+	    var _this = this;
+
 	    this._context = context;
 	    this._mountOrder = nextMountID++;
 	    this._hostParent = hostParent;
@@ -15297,7 +15360,11 @@
 
 	    if (inst.componentDidMount) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        transaction.getReactMountReady().enqueue(invokeComponentDidMountWithTimer, this);
+	        transaction.getReactMountReady().enqueue(function () {
+	          measureLifeCyclePerf(function () {
+	            return inst.componentDidMount();
+	          }, _this._debugID, 'componentDidMount');
+	        });
 	      } else {
 	        transaction.getReactMountReady().enqueue(inst.componentDidMount, inst);
 	      }
@@ -15321,35 +15388,26 @@
 
 	  _constructComponentWithoutOwner: function (doConstruct, publicProps, publicContext, updateQueue) {
 	    var Component = this._currentElement.type;
-	    var instanceOrElement;
+
 	    if (doConstruct) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'ctor');
-	        }
-	      }
-	      instanceOrElement = new Component(publicProps, publicContext, updateQueue);
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'ctor');
-	        }
-	      }
-	    } else {
-	      // This can still be an instance in case of factory components
-	      // but we'll count this as time spent rendering as the more common case.
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'render');
-	        }
-	      }
-	      instanceOrElement = Component(publicProps, publicContext, updateQueue);
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'render');
-	        }
+	        return measureLifeCyclePerf(function () {
+	          return new Component(publicProps, publicContext, updateQueue);
+	        }, this._debugID, 'ctor');
+	      } else {
+	        return new Component(publicProps, publicContext, updateQueue);
 	      }
 	    }
-	    return instanceOrElement;
+
+	    // This can still be an instance in case of factory components
+	    // but we'll count this as time spent rendering as the more common case.
+	    if (process.env.NODE_ENV !== 'production') {
+	      return measureLifeCyclePerf(function () {
+	        return Component(publicProps, publicContext, updateQueue);
+	      }, this._debugID, 'render');
+	    } else {
+	      return Component(publicProps, publicContext, updateQueue);
+	    }
 	  },
 
 	  performInitialMountWithErrorHandling: function (renderedElement, hostParent, hostContainerInfo, transaction, context) {
@@ -15358,11 +15416,6 @@
 	    try {
 	      markup = this.performInitialMount(renderedElement, hostParent, hostContainerInfo, transaction, context);
 	    } catch (e) {
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onError();
-	        }
-	      }
 	      // Roll back to checkpoint, handle error (which may add items to the transaction), and take a new checkpoint
 	      transaction.rollback(checkpoint);
 	      this._instance.unstable_handleError(e);
@@ -15383,17 +15436,19 @@
 
 	  performInitialMount: function (renderedElement, hostParent, hostContainerInfo, transaction, context) {
 	    var inst = this._instance;
+
+	    var debugID = 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      debugID = this._debugID;
+	    }
+
 	    if (inst.componentWillMount) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillMount');
-	        }
-	      }
-	      inst.componentWillMount();
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillMount');
-	        }
+	        measureLifeCyclePerf(function () {
+	          return inst.componentWillMount();
+	        }, debugID, 'componentWillMount');
+	      } else {
+	        inst.componentWillMount();
 	      }
 	      // When mounting, calls to `setState` by `componentWillMount` will set
 	      // `this._pendingStateQueue` without triggering a re-render.
@@ -15413,15 +15468,12 @@
 	    );
 	    this._renderedComponent = child;
 
-	    var selfDebugID = 0;
-	    if (process.env.NODE_ENV !== 'production') {
-	      selfDebugID = this._debugID;
-	    }
-	    var markup = ReactReconciler.mountComponent(child, transaction, hostParent, hostContainerInfo, this._processChildContext(context), selfDebugID);
+	    var markup = ReactReconciler.mountComponent(child, transaction, hostParent, hostContainerInfo, this._processChildContext(context), debugID);
 
 	    if (process.env.NODE_ENV !== 'production') {
-	      if (this._debugID !== 0) {
-	        ReactInstrumentation.debugTool.onSetChildren(this._debugID, child._debugID !== 0 ? [child._debugID] : []);
+	      if (debugID !== 0) {
+	        var childDebugIDs = child._debugID !== 0 ? [child._debugID] : [];
+	        ReactInstrumentation.debugTool.onSetChildren(debugID, childDebugIDs);
 	      }
 	    }
 
@@ -15442,24 +15494,22 @@
 	    if (!this._renderedComponent) {
 	      return;
 	    }
+
 	    var inst = this._instance;
 
 	    if (inst.componentWillUnmount && !inst._calledComponentWillUnmount) {
 	      inst._calledComponentWillUnmount = true;
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillUnmount');
-	        }
-	      }
+
 	      if (safely) {
 	        var name = this.getName() + '.componentWillUnmount()';
 	        ReactErrorUtils.invokeGuardedCallback(name, inst.componentWillUnmount.bind(inst));
 	      } else {
-	        inst.componentWillUnmount();
-	      }
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillUnmount');
+	        if (process.env.NODE_ENV !== 'production') {
+	          measureLifeCyclePerf(function () {
+	            return inst.componentWillUnmount();
+	          }, this._debugID, 'componentWillUnmount');
+	        } else {
+	          inst.componentWillUnmount();
 	        }
 	      }
 	    }
@@ -15546,13 +15596,21 @@
 	  _processChildContext: function (currentContext) {
 	    var Component = this._currentElement.type;
 	    var inst = this._instance;
-	    if (process.env.NODE_ENV !== 'production') {
-	      ReactInstrumentation.debugTool.onBeginProcessingChildContext();
+	    var childContext;
+
+	    if (inst.getChildContext) {
+	      if (process.env.NODE_ENV !== 'production') {
+	        ReactInstrumentation.debugTool.onBeginProcessingChildContext();
+	        try {
+	          childContext = inst.getChildContext();
+	        } finally {
+	          ReactInstrumentation.debugTool.onEndProcessingChildContext();
+	        }
+	      } else {
+	        childContext = inst.getChildContext();
+	      }
 	    }
-	    var childContext = inst.getChildContext && inst.getChildContext();
-	    if (process.env.NODE_ENV !== 'production') {
-	      ReactInstrumentation.debugTool.onEndProcessingChildContext();
-	    }
+
 	    if (childContext) {
 	      !(typeof Component.childContextTypes === 'object') ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.getChildContext(): childContextTypes must be defined in order to use getChildContext().', this.getName() || 'ReactCompositeComponent') : _prodInvariant('107', this.getName() || 'ReactCompositeComponent') : void 0;
 	      if (process.env.NODE_ENV !== 'production') {
@@ -15647,15 +15705,11 @@
 	    // immediately reconciled instead of waiting for the next batch.
 	    if (willReceive && inst.componentWillReceiveProps) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillReceiveProps');
-	        }
-	      }
-	      inst.componentWillReceiveProps(nextProps, nextContext);
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillReceiveProps');
-	        }
+	        measureLifeCyclePerf(function () {
+	          return inst.componentWillReceiveProps(nextProps, nextContext);
+	        }, this._debugID, 'componentWillReceiveProps');
+	      } else {
+	        inst.componentWillReceiveProps(nextProps, nextContext);
 	      }
 	    }
 
@@ -15665,15 +15719,11 @@
 	    if (!this._pendingForceUpdate) {
 	      if (inst.shouldComponentUpdate) {
 	        if (process.env.NODE_ENV !== 'production') {
-	          if (this._debugID !== 0) {
-	            ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'shouldComponentUpdate');
-	          }
-	        }
-	        shouldUpdate = inst.shouldComponentUpdate(nextProps, nextState, nextContext);
-	        if (process.env.NODE_ENV !== 'production') {
-	          if (this._debugID !== 0) {
-	            ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'shouldComponentUpdate');
-	          }
+	          shouldUpdate = measureLifeCyclePerf(function () {
+	            return inst.shouldComponentUpdate(nextProps, nextState, nextContext);
+	          }, this._debugID, 'shouldComponentUpdate');
+	        } else {
+	          shouldUpdate = inst.shouldComponentUpdate(nextProps, nextState, nextContext);
 	        }
 	      } else {
 	        if (this._compositeType === CompositeTypes.PureClass) {
@@ -15739,6 +15789,8 @@
 	   * @private
 	   */
 	  _performComponentUpdate: function (nextElement, nextProps, nextState, nextContext, transaction, unmaskedContext) {
+	    var _this2 = this;
+
 	    var inst = this._instance;
 
 	    var hasComponentDidUpdate = Boolean(inst.componentDidUpdate);
@@ -15753,15 +15805,11 @@
 
 	    if (inst.componentWillUpdate) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillUpdate');
-	        }
-	      }
-	      inst.componentWillUpdate(nextProps, nextState, nextContext);
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillUpdate');
-	        }
+	        measureLifeCyclePerf(function () {
+	          return inst.componentWillUpdate(nextProps, nextState, nextContext);
+	        }, this._debugID, 'componentWillUpdate');
+	      } else {
+	        inst.componentWillUpdate(nextProps, nextState, nextContext);
 	      }
 	    }
 
@@ -15775,7 +15823,9 @@
 
 	    if (hasComponentDidUpdate) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        transaction.getReactMountReady().enqueue(invokeComponentDidUpdateWithTimer.bind(this, prevProps, prevState, prevContext), this);
+	        transaction.getReactMountReady().enqueue(function () {
+	          measureLifeCyclePerf(inst.componentDidUpdate.bind(inst, prevProps, prevState, prevContext), _this2._debugID, 'componentDidUpdate');
+	        });
 	      } else {
 	        transaction.getReactMountReady().enqueue(inst.componentDidUpdate.bind(inst, prevProps, prevState, prevContext), inst);
 	      }
@@ -15792,6 +15842,12 @@
 	    var prevComponentInstance = this._renderedComponent;
 	    var prevRenderedElement = prevComponentInstance._currentElement;
 	    var nextRenderedElement = this._renderValidatedComponent();
+
+	    var debugID = 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      debugID = this._debugID;
+	    }
+
 	    if (shouldUpdateReactComponent(prevRenderedElement, nextRenderedElement)) {
 	      ReactReconciler.receiveComponent(prevComponentInstance, nextRenderedElement, transaction, this._processChildContext(context));
 	    } else {
@@ -15804,15 +15860,12 @@
 	      );
 	      this._renderedComponent = child;
 
-	      var selfDebugID = 0;
-	      if (process.env.NODE_ENV !== 'production') {
-	        selfDebugID = this._debugID;
-	      }
-	      var nextMarkup = ReactReconciler.mountComponent(child, transaction, this._hostParent, this._hostContainerInfo, this._processChildContext(context), selfDebugID);
+	      var nextMarkup = ReactReconciler.mountComponent(child, transaction, this._hostParent, this._hostContainerInfo, this._processChildContext(context), debugID);
 
 	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onSetChildren(this._debugID, child._debugID !== 0 ? [child._debugID] : []);
+	        if (debugID !== 0) {
+	          var childDebugIDs = child._debugID !== 0 ? [child._debugID] : [];
+	          ReactInstrumentation.debugTool.onSetChildren(debugID, childDebugIDs);
 	        }
 	      }
 
@@ -15834,17 +15887,14 @@
 	   */
 	  _renderValidatedComponentWithoutOwnerOrContext: function () {
 	    var inst = this._instance;
+	    var renderedComponent;
 
 	    if (process.env.NODE_ENV !== 'production') {
-	      if (this._debugID !== 0) {
-	        ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'render');
-	      }
-	    }
-	    var renderedComponent = inst.render();
-	    if (process.env.NODE_ENV !== 'production') {
-	      if (this._debugID !== 0) {
-	        ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'render');
-	      }
+	      renderedComponent = measureLifeCyclePerf(function () {
+	        return inst.render();
+	      }, this._debugID, 'render');
+	    } else {
+	      renderedComponent = inst.render();
 	    }
 
 	    if (process.env.NODE_ENV !== 'production') {
@@ -15895,7 +15945,7 @@
 	    var publicComponentInstance = component.getPublicInstance();
 	    if (process.env.NODE_ENV !== 'production') {
 	      var componentName = component && component.getName ? component.getName() : 'a component';
-	      process.env.NODE_ENV !== 'production' ? warning(publicComponentInstance != null, 'Stateless function components cannot be given refs ' + '(See ref "%s" in %s created by %s). ' + 'Attempts to access this ref will fail.', ref, componentName, this.getName()) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(publicComponentInstance != null || component._compositeType !== CompositeTypes.StatelessFunctional, 'Stateless function components cannot be given refs ' + '(See ref "%s" in %s created by %s). ' + 'Attempts to access this ref will fail.', ref, componentName, this.getName()) : void 0;
 	    }
 	    var refs = inst.refs === emptyObject ? inst.refs = {} : inst.refs;
 	    refs[ref] = publicComponentInstance;
@@ -16032,7 +16082,8 @@
 	  if (x === y) {
 	    // Steps 1-5, 7-10
 	    // Steps 6.b-6.e: +0 != -0
-	    return x !== 0 || 1 / x === 1 / y;
+	    // Added the nonzero y check to make Flow happy, but it is redundant
+	    return x !== 0 || y !== 0 || 1 / x === 1 / y;
 	  } else {
 	    // Step 6.a: NaN == NaN
 	    return x !== x && y !== y;
@@ -17086,10 +17137,15 @@
 
 	  var didWarn = {};
 
-	  validateDOMNesting = function (childTag, childInstance, ancestorInfo) {
+	  validateDOMNesting = function (childTag, childText, childInstance, ancestorInfo) {
 	    ancestorInfo = ancestorInfo || emptyAncestorInfo;
 	    var parentInfo = ancestorInfo.current;
 	    var parentTag = parentInfo && parentInfo.tag;
+
+	    if (childText != null) {
+	      process.env.NODE_ENV !== 'production' ? warning(childTag == null, 'validateDOMNesting: when childText is passed, childTag should be null') : void 0;
+	      childTag = '#text';
+	    }
 
 	    var invalidParent = isTagValidWithParent(childTag, parentTag) ? null : parentInfo;
 	    var invalidAncestor = invalidParent ? null : findInvalidAncestorForTag(childTag, ancestorInfo);
@@ -17138,7 +17194,15 @@
 	      didWarn[warnKey] = true;
 
 	      var tagDisplayName = childTag;
-	      if (childTag !== '#text') {
+	      var whitespaceInfo = '';
+	      if (childTag === '#text') {
+	        if (/\S/.test(childText)) {
+	          tagDisplayName = 'Text nodes';
+	        } else {
+	          tagDisplayName = 'Whitespace text nodes';
+	          whitespaceInfo = ' Make sure you don\'t have any extra whitespace between tags on ' + 'each line of your source code.';
+	        }
+	      } else {
 	        tagDisplayName = '<' + childTag + '>';
 	      }
 
@@ -17147,7 +17211,7 @@
 	        if (ancestorTag === 'table' && childTag === 'tr') {
 	          info += ' Add a <tbody> to your code to match the DOM tree generated by ' + 'the browser.';
 	        }
-	        process.env.NODE_ENV !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a child of <%s>. ' + 'See %s.%s', tagDisplayName, ancestorTag, ownerInfo, info) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a child of <%s>.%s ' + 'See %s.%s', tagDisplayName, ancestorTag, whitespaceInfo, ownerInfo, info) : void 0;
 	      } else {
 	        process.env.NODE_ENV !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a descendant of ' + '<%s>. See %s.', tagDisplayName, ancestorTag, ownerInfo) : void 0;
 	      }
@@ -17454,7 +17518,7 @@
 	      if (parentInfo) {
 	        // parentInfo should always be present except for the top-level
 	        // component when server rendering
-	        validateDOMNesting('#text', this, parentInfo);
+	        validateDOMNesting(null, this._stringText, this, parentInfo);
 	      }
 	    }
 
@@ -19047,7 +19111,7 @@
 	      bubbled: keyOf({ onSelect: null }),
 	      captured: keyOf({ onSelectCapture: null })
 	    },
-	    dependencies: [topLevelTypes.topBlur, topLevelTypes.topContextMenu, topLevelTypes.topFocus, topLevelTypes.topKeyDown, topLevelTypes.topMouseDown, topLevelTypes.topMouseUp, topLevelTypes.topSelectionChange]
+	    dependencies: [topLevelTypes.topBlur, topLevelTypes.topContextMenu, topLevelTypes.topFocus, topLevelTypes.topKeyDown, topLevelTypes.topKeyUp, topLevelTypes.topMouseDown, topLevelTypes.topMouseUp, topLevelTypes.topSelectionChange]
 	  }
 	};
 
@@ -21417,6 +21481,833 @@
 
 	module.exports = ReactDOMNullInputValuePropHook;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ },
+/* 172 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(173);
+	module.exports.Container = __webpack_require__(174);
+
+/***/ },
+/* 173 */
+/***/ function(module, exports) {
+
+	var group_timer,
+	    groups = [];
+
+	function group(item) {
+	    if (!group_timer) {
+	        group_timer = setTimeout(do_group, 16);
+	    }
+	    item._group = 1;
+	    groups.push(item);
+	}
+	function ungroup(item) {
+	    var index = groups.indexOf(item);
+	    groups[index] = 0;
+	}
+	function do_group() {
+	    group_timer = 0;
+	    var i, ln, item, pack, settings;
+	    for (i = 0, ln = groups.length; i < ln; i++) {
+	        if (item = groups[i]) {
+	            pack = item.pack;
+	            item._group = 0;
+	            settings = item.settings;
+	            pack.targetRect = settings.target.getBoundingClientRect();
+	            settings.constrainTo = item.props.constrainTo || defaults.constrainTo;
+	            settings.constrainTarget = item._upwardSelector(settings.constrainTo, settings);
+	            pack.parentRect = settings.constrainTarget.getBoundingClientRect();
+	        }
+	    }
+	    for (i = 0, ln = groups.length; i < ln; i++) {
+	        groups[i]._updateAsync();
+	    }
+	    groups.length = 0;
+	}
+	//
+	//TODO cleanup and opensource
+	//TODO add groups
+	var SHOWING = {
+	    'NONE': 0,
+	    'MOUSEOVER': 1,
+	    'CONTENT': 2,
+	    'CLICK': 4,
+	    'PROPERTY': 8
+	},
+	    LEFT = 1,
+	    RIGHT = 2,
+	    TOP = 3,
+	    BOTTOM = 4;
+
+	var defaults = {
+	    //'onContentMouseLeave' : undefined,
+	    //'onContentMouseEnter' : undefined,
+	    'backgroundStyle': undefined,
+	    'arrowStyle': {},
+	    'foregroundStyle': undefined,
+	    'wrapperStyle': undefined,
+	    'content': '',
+	    'className': '',
+	    'title': '',
+	    'position': {
+	        'overflow': 'auto',
+	        'position': 'relative',
+	        'top': 0,
+	        'height': '100%',
+	        'left': 0,
+	        'width': '100%'
+	    },
+	    'constrainTo': 'parent',
+	    'persistOverContent': false,
+	    'showOnMouseEnter': true,
+	    'hideOnMouseLeave': true,
+	    'bindWindowResize': false,
+	    'bindScroll': false,
+	    //'hideOnClickOut' : false,
+	    'toggleOnClick': false,
+	    'constrainWidth': true,
+	    'constrainHeight': true,
+	    'track': false,
+	    //'constrainLeft' : true,
+	    //'constrainTop' : true,
+	    'arrowSize': 15,
+	    //'arrowPosition' : {},
+	    'region': undefined,
+	    'show': undefined,
+	    'showDelay': 300,
+	    'hideDelay': 320
+	},
+	    getDefaults = eval('(function () {return ' + JSON.stringify(defaults) + ';})');
+	(function (defaults) {
+	    var p, item;
+	    for (p in defaults) {
+	        item = defaults[p];
+	        if (item && typeof item === 'object') {
+	            defaults[p] = eval('(function (obj) {var result =' + JSON.stringify(item) + ',p; for (p in obj) {result[p]=obj[p]} return result;})');
+	        }
+	    }
+	})(defaults);
+
+	function assign_defaults(obja) {
+	    var _defaults = getDefaults(),
+	        val,
+	        d,
+	        p,
+	        q;
+	    for (p in obja) {
+	        if ((val = obja[p]) !== undefined && val !== null) {
+	            if (typeof val === 'object' && typeof (d = _defaults[p]) === 'object' && d) {
+	                for (q in val) {
+	                    d[q] = val[q];
+	                }
+	            } else {
+	                _defaults[p] = val;
+	            }
+	        }
+	    }
+	    return _defaults;
+	}
+
+	var
+	//React = require('react'),
+	//ReactDOM = require('react-dom'),
+	Popover = React.createClass({
+	    displayName: 'Popover',
+
+	    'shouldComponentUpdate': function (props, state) {
+	        var last = this.state || {},
+	            position2 = state.position || {},
+	            result = this.minWidth !== position2.minWidth || this.minHeight !== position2.minHeight || this.maxWidth !== position2.maxWidth || last.content !== state.content || last.title !== state.title || this.maxHeight !== position2.maxHeight;
+	        return result;
+	    },
+	    'overflowStyle': {},
+	    'wrapperStyle': {},
+	    'render': function () {
+	        var state = this.state;
+	        if (!state) {
+	            return null;
+	        }
+	        var title = state.title,
+	            position = state.position,
+	            maxWidth = position.maxWidth,
+	            maxHeight = position.maxHeight,
+	            minWidth = position.minWidth,
+	            minHeight = position.minHeight,
+	            content = state.content,
+	            overflowStyle = this.overflowStyle,
+	            wrapperStyle = this.wrapperStyle;
+
+	        overflowStyle.overflow = content ? 'auto' : null;
+	        this.maxHeight = overflowStyle.maxHeight = wrapperStyle.maxHeight = maxHeight;
+	        this.maxWidth = overflowStyle.maxWidth = wrapperStyle.maxWidth = maxWidth;
+	        this.minHeight = overflowStyle.minHeight = wrapperStyle.minHeight = minHeight;
+	        this.minWidth = overflowStyle.minWidth = wrapperStyle.minWidth = minWidth;
+
+	        return React.createElement(
+	            'span',
+	            { className: "poppy " + (state.className || ''), onMouseOver: this._onEnter, onMouseOut: this._onExit },
+	            React.createElement(
+	                'span',
+	                { ref: 'inner', className: 'poppy-background' },
+	                React.createElement('div', { ref: 'arrow', className: 'poppy-arrow', style: state.arrowStyle }),
+	                React.createElement('div', { ref: 'wrapper', className: 'poppy-background-overlay', style: state.wrapperStyle })
+	            ),
+	            React.createElement(
+	                'div',
+	                { ref: 'content', className: 'poppy-content-wrapper', style: wrapperStyle },
+	                title ? React.createElement(
+	                    'div',
+	                    { ref: 'titleWrapper', className: 'poppy-title-wrapper' },
+	                    React.createElement(
+	                        'span',
+	                        { ref: 'title', className: 'poppy-title' },
+	                        state.title
+	                    )
+	                ) : null,
+	                React.createElement(
+	                    'div',
+	                    { ref: 'overflow', className: 'poppy-overflow', style: overflowStyle },
+	                    content ? React.createElement(
+	                        'div',
+	                        { ref: 'popover', className: 'poppy-content' },
+	                        ' ',
+	                        content || '',
+	                        ' '
+	                    ) : React.createElement('span', { ref: 'popover' })
+	                )
+	            )
+	        );
+	    },
+	    '_onEnter': function () {
+	        this.state.onEnterContent && this.state.onEnterContent(SHOWING.CONTENT);
+	    },
+	    '_onExit': function () {
+	        this.state.onLeaveContent && this.state.onLeaveContent(SHOWING.CONTENT);
+	    }
+	}),
+	    overlay_template = document.createElement('span');
+	overlay_template.innerHTML = '<div class="poppy-container" style="position:absolute;top:0px;display:inline;pointer-events:none;z-index:6000"></div>';
+	overlay_template = overlay_template.lastChild;
+
+	module.exports = React.createClass({
+	    displayName: 'exports',
+
+	    'getInitialState': function () {
+	        var state = assign_defaults(this.props);
+	        this._lastTargetRect = { left: 0, top: 0, width: 0, height: 0 };
+	        this.pack = {};
+	        this.settings = {
+	            arrowStyle: {
+	                width: defaults.arrowSize,
+	                height: defaults.arrowSize
+	            },
+	            constrainTo: defaults.constrainTo,
+	            showing: 0,
+	            showDelay: defaults.showDelay,
+	            hideDelay: defaults.hideDelay,
+	            //arrowSize:defaults.arrowSize,
+	            track: defaults.track,
+	            constrainHeight: defaults.constrainHeight,
+	            constrainWidth: defaults.constrainWidth,
+	            className: defaults.className,
+
+	            //showOnMouseEnter : defaults.showOnMouseEnter,
+	            //hideOnMouseLeave : defaults.hideOnMouseLeave,
+	            //toggleOnClick : defaults.toggleOnClick,
+	            //bindWindowResize : defaults.bindWindowResize,
+	            //persistOverContent : defaults.persistOverContent,
+	            //bindScrollContainer : defaults.bindScrollContainer
+
+	            title: ''
+	        };
+	        this.componentWillUpdate(this.props, state);
+	        return state;
+	    },
+	    'componentDidMount': function () {
+	        var me = this,
+	            target = ReactDOM.findDOMNode(this);
+
+	        me.setState({
+	            'target': target
+	        });
+	        //TODO fix this
+	        setTimeout(function () {
+	            me._updateSync(me.props, me.state);
+	        });
+	    },
+	    'componentWillUnmount': function () {
+	        var target = this.state.target,
+	            doc = target.ownerDocument,
+	            window = doc.defaultView;
+
+	        if (this.settings && (target = this.settings.target)) {
+	            target.removeEventListener('mouseenter', this._onMouseEnter);
+	            target.removeEventListener('mouseleave', this._onMouseLeave);
+	            target.removeEventListener('click', this._onClick);
+	        }
+	        this.untrack();
+	        this._resize_timer && clearTimeout(this._resize_timer);
+	        this._show_timer && clearTimeout(this._show_timer);
+	        //this._render_timer && clearTimeout(this._render_timer);
+	        this.overlay && this.overlay.parentNode.removeChild(this.popoverEl);
+	        this._init_timer && clearTimeout(this._init_timer);
+
+	        this.state.settings.bindWindowResize && window.removeEventListener('resize', this._onResize);
+	        this._boundScroll && this._boundScroll.removeEventListener('scroll', this._onScroll);
+	    },
+	    'componentWillUpdate': function (props, state) {
+	        this._updateSync(props, state);
+	        !this._group && group(this);
+	    },
+	    '_updateSync': function (props, state) {
+	        state = state || this.state;
+	        var settings = this.settings,
+	            bindWindowResize = props.bindWindowResize || false,
+	            target = state && state.target,
+	            ltarget = settings.target,
+	            track = props.track || false,
+	            view = target && target.ownerDocument.defaultView,
+	            bindScroll = props.bindScroll === true ? 'window' : props.bindScroll,
+	            boundScroll = this._boundScroll,
+	            scroller = settings.target ? this._upwardSelector(bindScroll, settings) : false;
+
+	        if (bindWindowResize !== settings.bindWindowResize) {
+	            if (bindWindowResize) {
+	                view && (view.addEventListener('resize', this._onResize), settings.bindWindowResize = true);
+	            } else {
+	                view && view.removeEventListener('resize', this._onResize);
+	                settings.bindWindowResize = false;
+	            }
+	        }
+
+	        if (scroller !== boundScroll) {
+	            if (boundScroll) {
+	                boundScroll.removeEventListener('scroll', this._onScroll);
+	                this._boundScroll = false;
+	            }
+	            if (scroller) {
+	                scroller.addEventListener('scroll', this._onScroll, true);
+	                this._boundScroll = scroller;
+	            }
+	        }
+
+	        if (track !== settings.track) {
+	            if (track) {
+	                settings.track = true;
+	                this.track();
+	            } else {
+	                settings.track = false;
+	                this.untrack();
+	            }
+	        }
+
+	        if (target && ltarget !== target) {
+	            target.addEventListener('mouseenter', this._onMouseEnter);
+	            target.addEventListener('mouseleave', this._onMouseLeave);
+	            target.addEventListener('click', this._onClick);
+	            settings.target = target;
+	            if (ltarget) {
+	                ltarget.removeEventListener('mouseenter', this._onMouseEnter);
+	                ltarget.removeEventListener('mouseleave', this._onMouseLeave);
+	                ltarget.removeEventListener('click', this._onClick);
+	            }
+	        }
+
+	        if (props.persistOverContent) {
+	            settings.persistOverContent = true;
+	            settings.onEnterContent = this.show;
+	            settings.onLeaveContent = this.hide;
+	        } else {
+	            settings.persistOverContent = false;
+	            settings.onEnterContent = false;
+	            settings.onLeaveContent = false;
+	        }
+
+	        settings.toggleOnClick = props.toggleOnClick !== undefined ? props.toggleOnClick : defaults.toggleOnClick;
+	        settings.showOnMouseEnter = props.showOnMouseEnter !== undefined ? props.showOnMouseEnter : defaults.showOnMouseEnter;
+	        settings.hideOnMouseLeave = props.hideOnMouseLeave !== undefined ? props.hideOnMouseLeave : defaults.hideOnMouseLeave;
+	        settings.constrainHeight = props.constrainHeight !== undefined ? props.constrainHeight : defaults.constrainHeight;
+	        settings.constrainWidth = props.constrainWidth !== undefined ? props.constrainWidth : defaults.constrainWidth;
+	    },
+	    '_updateAsync': function () {
+
+	        if (!this.settings.target) {
+	            return;
+	        }
+
+	        var me = this,
+	            props = this.props,
+	            show = props.show,
+	            settings = this.settings,
+	            showing = settings.showing & SHOWING.PROPERTY,
+	            doc = settings.target.ownerDocument,
+	            body = doc.body,
+	            overlay = this._upwardSelector(".poppy-container", settings),
+	            popover = this.popover,
+	            arrowStyle = settings.arrowStyle,
+	            arrowSize = props.arrowSize !== undefined ? props.arrowSize : defaults.arrowSize,
+	            region = props.region;
+
+	        if (region && region !== settings.last_prop_region) {
+	            if (region === 'top') {
+	                settings.region = TOP;
+	            } else if (region === 'left') {
+	                settings.region = LEFT;
+	            } else if (region === 'right') {
+	                settings.region = RIGHT;
+	            } else if (region === 'bottom') {
+	                settings.region = BOTTOM;
+	            }
+	        } else if (!region) {
+	            settings.region = defaults.region;
+	        }
+
+	        settings.last_prop_region = region;
+	        settings.title = props.title || defaults.title;
+	        settings.content = props.content || defaults.content;
+	        settings.className = props.className || defaults.className;
+
+	        if (settings.arrowSize !== arrowSize) {
+	            settings.arrowSize = arrowSize;
+	            settings.arrowSize3_4 = arrowSize * .75;
+	            settings.arrowSize1_2 = arrowSize * .5;
+	            settings.arrowSize2_1 = arrowSize * 2;
+	            settings.arrowSize3_2 = arrowSize * 1.5;
+	            arrowStyle.height = arrowStyle.width = arrowSize;
+	        }
+
+	        this._adjustPosition(this.settings);
+
+	        if (overlay === body) {
+	            overlay = body.querySelector('.poppy-container');
+	        }
+	        if (!overlay) {
+	            body.appendChild(overlay = this.overlay = overlay_template.cloneNode(true));
+	        } else if (!this.overlay) {
+	            this.overlay = overlay;
+	        }
+
+	        if (!popover) {
+	            var test = document.createElement('div');
+	            popover = this.popover = ReactDOM.render(React.createElement(Popover, null), test);
+	            overlay.appendChild(test.lastChild);
+	        } else if (this.overlay.ownerDocument !== doc && this.popoverEl) {
+	            overlay.appendChild(this.popoverEl);
+	            this.overlay = overlay;
+	        }
+
+	        popover.setState(settings);
+	        if (!this.popoverEl) {
+	            this.popoverEl = ReactDOM.findDOMNode(popover);
+	        }
+
+	        !this._init_timer && requestAnimationFrame(function () {
+	            if (showing && !show) {
+	                me.hide(SHOWING.PROPERTY);
+	            } else if (!showing && show) {
+	                me.show(SHOWING.PROPERTY);
+	            }
+
+	            me._init_timer = false;
+	            me._updatePositions();
+	        });
+	    },
+	    '_onResize': function () {
+	        var me = this;
+	        if (this._resize_timer) {
+	            clearTimeout(this._resize_timer);
+	        }
+	        this._resize_timer = setTimeout(function () {
+	            me._resize_timer = undefined;
+	            me.setState({});
+	        }, 60);
+	    },
+	    '_onMouseEnter': function () {
+	        if (this.settings.showOnMouseEnter) {
+	            this.show(SHOWING.MOUSEOVER);
+	        }
+	    },
+	    '_onMouseLeave': function () {
+	        if (this.settings.hideOnMouseLeave) {
+	            this.hide(SHOWING.MOUSEOVER);
+	        }
+	    },
+	    '_onClick': function () {
+	        if (this.settings.toggleOnClick) {
+	            if (this.settings.showing & SHOWING.CLICK) {
+	                this.hide(SHOWING.CLICK);
+	            } else {
+	                this.show(SHOWING.CLICK);
+	            }
+	        }
+	    },
+	    '_adjustPosition': function (settings) {
+	        var rect = this.pack.targetRect,
+	            //settings.target.getBoundingClientRect(),
+	        parentRect = this.pack.parentRect,
+	            //settings.constrainTarget.getBoundingClientRect(),
+	        region = settings.region,
+	            leftSpace = settings.leftSpace = rect.left - parentRect.left,
+	            rightSpace = settings.rightSpace = parentRect.left + parentRect.width - (rect.left + rect.width),
+	            topSpace = settings.topSpace = rect.top - parentRect.top,
+	            bottomSpace = settings.bottomSpace = parentRect.top + parentRect.height - (rect.top + rect.height),
+	            arrowSize = settings.arrowSize,
+	            position = settings.position,
+	            half_size = settings.arrowSize3_4,
+	            constrainHeight = settings.constrainHeight,
+	            constrainWidth = settings.constrainWidth,
+	            double_size = arrowSize * 2;
+
+	        if (!position) {
+	            position = settings.position = {};
+	        }
+
+	        if (!region) {
+	            if (leftSpace > bottomSpace && leftSpace > topSpace && leftSpace >= rightSpace && topSpace > 30 && bottomSpace > 30) {
+	                region = settings.region = LEFT;
+	            } else if (rightSpace > bottomSpace && rightSpace > topSpace && topSpace > 30 && bottomSpace > 30) {
+	                region = settings.region = RIGHT;
+	            } else if (topSpace > bottomSpace) {
+	                region = settings.region = TOP;
+	            } else {
+	                region = settings.region = BOTTOM;
+	            }
+	        }
+
+	        if (region === LEFT) {
+	            position.minWidth = 0;
+	            position.minHeight = double_size;
+	            position.top = position.left = 0;
+	            constrainWidth && (position.maxWidth = Math.max(leftSpace - half_size - 25, double_size));
+	            constrainHeight && (position.maxHeight = Math.max(topSpace + bottomSpace + rect.height - 30, 5));
+	        } else if (region === RIGHT) {
+	            position.minWidth = 0;
+	            position.top = 0;
+	            position.minHeight = double_size;
+	            position.left = rect.left + rect.width + half_size;
+	            constrainWidth && (position.maxWidth = Math.max(rightSpace - half_size - 25, double_size));
+	            constrainHeight && (position.maxHeight = Math.max(topSpace + bottomSpace + rect.height - 30, 5));
+	        } else if (region === BOTTOM) {
+	            position.minHeight = 'auto';
+	            position.top = rect.top + rect.height + half_size;
+	            position.left = 0;
+	            position.minWidth = double_size;
+	            constrainHeight && (position.maxHeight = Math.max(bottomSpace - half_size - 5, 25));
+	            constrainWidth && (position.maxWidth = Math.max(leftSpace + rightSpace + rect.width - 30, 25));
+	        } else {
+	            position.minHeight = 'auto';
+	            position.top = position.left = 0;
+	            position.minWidth = double_size;
+	            constrainHeight && (position.maxHeight = Math.max(topSpace - half_size + 2, 25));
+	            constrainWidth && (position.maxWidth = Math.max(leftSpace + rightSpace + rect.width - 30, 25));
+	        }
+	    },
+	    '_onScroll': function () {
+	        !this._group && group(this);
+	    },
+	    '_track_timer': undefined,
+	    '_doTrack': function () {
+	        this._track_timer = setTimeout(this._doTrack, 16);
+
+	        var settings = this.settings,
+	            target = settings.target;
+
+	        if (!target || !this.popover) {
+	            return;
+	        }
+
+	        !this._group && group(this);
+	    },
+	    'track': function () {
+	        if (!this._track_timer) {
+	            this._track_timer = setTimeout(this._doTrack, 16);
+	        }
+	        return this;
+	    },
+	    'untrack': function () {
+	        if (this._track_timer) {
+	            clearTimeout(this._track_timer);
+	            this._track_timer = false;
+	        }
+	        return this;
+	    },
+	    'refresh': function () {
+	        this.setState({});
+	        return this;
+	    },
+	    'hide': function (trigger) {
+	        var me = this,
+	            settings = this.settings,
+	            showing = settings.showing;
+	        if (!showing) {
+	            return;
+	        }
+
+	        if (showing & trigger) {
+	            settings.showing -= trigger;
+	        } else {
+	            return;
+	        }
+
+	        var node = this.popoverEl,
+	            style = node.style;
+	        this._show_timer && clearTimeout(this._show_timer);
+	        this._show_timer = setTimeout(function () {
+	            if (settings.showing) {
+	                return;
+	            }
+	            !node.$listener && node.addEventListener('transitionend', node.$listener = function () {
+	                node.removeEventListener('transitionend', node.$listener);
+	                node.$listener = false;
+	                !settings.showing && (node.style.visibility = 'hidden');
+	            });
+	            me._show_timer = undefined;
+	            style.transition = 'all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms';
+	            if (settings.region === RIGHT) {
+	                style.transform = 'translateX(30px)translateY(0px)';
+	            } else if (settings.region === LEFT) {
+	                style.transform = 'translateX(-30px)translateY(0px)';
+	            } else if (settings.region === TOP) {
+	                style.transform = 'translateX(0px)translateY(-30px)';
+	            } else {
+	                style.transform = 'translateX(0px)translateY(30px)';
+	            }
+	            style.opacity = 0;
+	            me.props.onHide && me.props.onHide();
+	        }, settings.hideDelay);
+	    },
+	    'show': function (trigger) {
+	        var me = this,
+	            settings = this.settings,
+	            node = this.popoverEl,
+	            style = node.style,
+	            reset = true,
+	            was_showing = settings.showing;
+
+	        settings.showing |= trigger;
+	        if (was_showing) {
+	            return;
+	        } else if (this._show_timer) {
+	            clearTimeout(this._show_timer);
+	            this._show_timer = undefined;
+	            reset = false;
+	        }
+	        node.$listener && node.removeEventListener('transitionend', node.$listener);
+	        node.$listener = false;
+
+	        if (reset) {
+	            this._show_timer = setTimeout(function () {
+	                if (!settings.showing) {
+	                    return;
+	                }
+	                me.props.onShow && me.props.onShow();
+	                me._show_timer = undefined;
+	                style.transition = null;
+	                if (settings.region === RIGHT) {
+	                    style.transfrom = 'translateX(30px)translateY(0px)';
+	                } else if (settings.region === LEFT) {
+	                    style.transform = 'translateX(-30px)translateY(0px)';
+	                } else if (settings.region === TOP) {
+	                    style.transform = 'translateX(0px)translateY(-30px)';
+	                } else {
+	                    style.transform = 'translateX(0px)translateY(30px)';
+	                }
+	                me._show_timer = setTimeout(function () {
+	                    me._show_timer = undefined;
+	                    style.transition = 'all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms';
+	                    style.visibility = null;
+	                    style.opacity = 1;
+	                    style.transform = 'translateX(0px)translateY(0px)';
+	                }, settings.showDelay);
+	            });
+	        } else {
+	            style.transition = 'all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms';
+	            style.visibility = null;
+	            style.opacity = 1;
+	            style.transform = 'translateX(0px)translateY(0px)';
+	        }
+	    },
+	    '_upwardSelector': function (selector, settings) {
+	        var target = settings.target,
+	            document = target.ownerDocument;
+
+	        if (!selector) {
+	            return selector;
+	        } else if (typeof selector === 'string') {
+	            if (selector === 'body') {
+	                return document.body;
+	            } else if (selector === 'parent') {
+	                return target && target.parentNode;
+	            } else if (selector === 'window') {
+	                return target && target.ownerDocument.defaultView;
+	            } else {
+	                while (target) {
+	                    if (target.matches && target.matches(selector)) {
+	                        return target;
+	                    }
+	                    target = target.parentNode;
+	                }
+	                return document.body;
+	            }
+	        } else if (target = ReactDOM.findDOMNode(selector)) {
+	            return target;
+	        }
+	        return selector;
+	    },
+	    '_updatePositions': function () {
+	        var target = this.settings.target;
+	        if (!target) {
+	            return;
+	        }
+	        var overflow = this.popover.refs.overflow,
+	            overflowStyle = overflow.style,
+	            overflowRect,
+	            wrapperStyle = this.popover.refs.wrapper.style,
+	            arrow = this.popover.refs.arrow,
+	            arrowelStyle = arrow.style,
+	            contentStyle = this.popover.refs.content.style,
+	            settings = this.settings,
+	            title = this.popover.refs.title,
+	            titleRect = title && title.getBoundingClientRect(),
+	            targetRect = this.pack.targetRect,
+	            //target.getBoundingClientRect(),
+	        parentRect = this.pack.parentRect,
+	            //settings.constrainTarget.getBoundingClientRect(),
+	        titleWidth = titleRect && titleRect.width || 0,
+	            titleHeight = titleRect && titleRect.height || 0,
+	            targetTop = targetRect.top,
+	            targetWidth = targetRect.width,
+	            halfTargetWidth = targetWidth / 2,
+	            targetHeight = targetRect.height,
+	            halfTargetHeight = targetHeight / 2,
+	            targetLeft = targetRect.left,
+	            offsetTop,
+	            offsetLeft,
+	            parentTop = offsetTop = parentRect.top,
+	            parentLeft = offsetLeft = parentRect.left,
+	            arrowLeft = offsetLeft | 0,
+	            arrowTop = offsetTop | 0,
+	            width,
+	            height,
+	            region = settings.region,
+	            spaceLeft = settings.leftSpace,
+	            spaceTop = settings.topSpace,
+	            arrowSize = settings.arrowSize | 0,
+	            size1_2 = settings.arrowSize1_2,
+	            size3_4 = settings.arrowSize3_4,
+	            size2_1 = settings.arrowSize2_1,
+	            size3_2 = settings.arrowSize3_2,
+	            upperBounds,
+	            lowerBounds,
+	            x = settings.position.left,
+	            y = settings.position.top,
+	            c;
+
+	        overflowStyle.paddingTop = titleHeight + 'px';
+	        overflowStyle.maxHeight = Math.max(Math.round(this.settings.position.maxHeight - titleHeight), 0) + 'px';
+
+	        overflowRect = overflow.getBoundingClientRect();
+	        width = Math.max(overflowRect.width, titleWidth);
+	        height = overflowRect.height;
+
+	        if (!this.settings.target) {
+	            return;
+	        }
+	        if (region === TOP || region === BOTTOM) {
+	            lowerBounds = 5;
+	            upperBounds = parentLeft + parentRect.width - 5;
+	            offsetLeft = targetLeft + halfTargetWidth - width / 2;
+	            if (offsetLeft < lowerBounds) {
+	                offsetLeft = lowerBounds;
+	            }
+	            if ((c = targetLeft + targetWidth - size3_2) < lowerBounds) {
+	                offsetLeft = c;
+	            }
+	            if (offsetLeft > (c = upperBounds - width)) {
+	                offsetLeft = c;
+	            }
+	            if ((c = targetLeft + arrowSize) > upperBounds) {
+	                offsetLeft = c - width;
+	            }
+
+	            arrowLeft += spaceLeft + halfTargetWidth - arrowSize;
+	            arrowLeft = Math.max(Math.min(arrowLeft, offsetLeft + width - size2_1), offsetLeft) + size1_2;
+	            x = offsetLeft;
+	            if (region === TOP) {
+	                y = targetTop - height - size3_4 - 9;
+	                arrowTop = y + height - size1_2;
+	            } else {
+	                arrowTop = y - size1_2;
+	            }
+	        } else if (region === LEFT || region === RIGHT) {
+	            offsetTop += spaceTop + targetHeight - halfTargetHeight - height / 2;
+	            upperBounds = parentTop + parentRect.height - 5;
+	            lowerBounds = 5;
+
+	            if (offsetTop < lowerBounds) {
+	                offsetTop = lowerBounds;
+	            }
+	            if ((c = targetTop + targetHeight - size3_2) < lowerBounds) {
+	                offsetTop = c;
+	            }
+	            if (offsetTop > (c = upperBounds - height)) {
+	                offsetTop = c;
+	            }
+	            if ((c = targetTop + arrowSize) > upperBounds) {
+	                offsetTop = c - height;
+	            }
+	            arrowTop += spaceTop + halfTargetHeight - arrowSize;
+	            arrowTop = Math.max(Math.min(arrowTop, offsetTop + height - size2_1), offsetTop) + size1_2;
+	            y = offsetTop;
+	            if (region === LEFT) {
+	                x = targetLeft - width - size3_4 - 6;
+	                arrowLeft = x + width - size1_2 - 1;
+	            } else {
+	                x = targetLeft + targetWidth + size3_4;
+	                arrowLeft = x - size1_2 + 1;
+	            }
+	        }
+
+	        contentStyle.width = wrapperStyle.width = (width | 0) + 'px';
+	        arrowelStyle.top = (arrowTop | 0) + 'px';
+	        arrowelStyle.left = (arrowLeft | 0) + 'px';
+	        wrapperStyle.top = contentStyle.top = (y | 0) + 'px';
+	        wrapperStyle.left = contentStyle.left = (x | 0) + 'px';
+	        wrapperStyle.height = (height | 0) + 'px';
+
+	        this.settings.showing && this.popoverEl.style.visiblity && (this.popoverEl.style.visiblity = null);
+	    },
+	    'render': function () {
+	        var children = this.props.children;
+	        if (typeof children === 'string') {
+	            children = React.createElement(
+	                'span',
+	                null,
+	                children
+	            );
+	        }
+	        return children || null;
+	    }
+	});
+
+/***/ },
+/* 174 */
+/***/ function(module, exports) {
+
+	//var React = require('react');
+	//var React = window.React;
+	module.exports = React.createClass({
+	    displayName: 'exports',
+
+	    'shouldComponentUpdate': function () {
+	        return !this.loaded && (this.loaded = true);
+	    },
+	    'render': function () {
+	        return React.createElement('div', { className: 'poppy-container', style: { position: 'absolute', display: 'inline', top: 0, pointerEvents: 'none', zIndex: 6000 } });
+	    }
+	});
 
 /***/ }
 /******/ ]);
