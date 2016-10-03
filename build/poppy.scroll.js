@@ -21492,11 +21492,12 @@
 	    isSafari = navigator.userAgent.toLowerCase();
 	isSafari = isSafari.indexOf('safari') >= 0 && isSafari.indexOf('chrome') < 0;
 
-	function group(item) {
+	function group(item, unsafe) {
 	    if (!group_timer) {
 	        group_timer = requestAnimationFrame(do_group, 16);
 	    }
 	    item._group = 1;
+	    unsafe && (item._unsafe = 1);
 	    groups.push(item);
 	}
 	function ungroup(item) {
@@ -21519,6 +21520,7 @@
 	    for (i = 0, ln = groups.length; i < ln; i++) {
 	        if (item = groups[i]) {
 	            item._updateAsync();
+	            item._unsafe && (item._unsafe = 0);
 	        }
 	        //groups[i]._updateAsync();
 	    }
@@ -22024,7 +22026,7 @@
 	        }
 	    },
 	    '_onScroll': function () {
-	        !this._group && group(this);
+	        !this._group && group(this, true);
 	    },
 	    '_track_timer': undefined,
 	    '_doTrack': function () {
@@ -22037,7 +22039,7 @@
 	            return;
 	        }
 
-	        !this._group && group(this);
+	        !this._group && group(this, true);
 	    },
 	    'track': function () {
 	        if (!this._track_timer) {
@@ -22298,7 +22300,7 @@
 	        //wrapperStyle.left = contentStyle.left = (x|0) + 'px'
 
 
-	        if (isSafari && this.popoverEl) {
+	        if (isSafari && this._unsafe && this.popoverEl) {
 	            if (group_timer) {
 	                this.popoverEl.style.transition = arrowelStyle.transition = contentStyle.transition = wrapperStyle.transition = 'none';
 	            } else {
