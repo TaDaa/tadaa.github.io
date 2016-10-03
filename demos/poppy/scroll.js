@@ -27,8 +27,8 @@ View = React.createClass({
         content = <div>{tests}</div>
 
         for (i=0,ln=max_perc;i<ln;i+=tick_perc) {
-            popovers.push(<Poppy constrainTo="body" show={true} bindScroll={true} arrowSize={this.state.arrowSize} content={content}>
-                <div style={{position:'absolute',left:i+'%',top:i+'%',width:100,height:25}}>FOLLOW ME!!!!</div>
+            popovers.push(<Poppy show={true} constrainTo="body" showOnMouseEnter={false} hideOnMouseLeave={false} bindScroll={true} arrowSize={this.state.arrowSize} content={content}>
+                <div style={{position:'absolute',left:i+'%',top:i+'%',width:100,height:50}}>FOLLOW ME!!!!</div>
             </Poppy>);
         }
 
