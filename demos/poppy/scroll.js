@@ -1,7 +1,7 @@
 //TODO loosen version requirements for react
 var React = window.React =  require('react'),
 ReactDOM = window.ReactDOM=  require('react-dom'),
-Poppy = require('../../../react-poppy/libs/poppy.js');
+Poppy = require('react-poppy'),
 //Poppy = require('react-poppy');
 
 
